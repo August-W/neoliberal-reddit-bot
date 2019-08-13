@@ -21,21 +21,26 @@ from pandas.plotting import table
 
 #NEED THIS TO GET TO REDDIT
 config = Config('.env')
-print(config('CLIENT_ID'))
-print(config('NEOLIBERAL_CLIENT_ID'))
 
 #SET UP THE REDDIT CONNECTION
-r = praw.Reddit(client_id=config('NEOLIBERAL_CLIENT_ID'),
-                     client_secret=config('NEOLIBERAL_CLIENT_SECRET'),
-                     password=config('NEOLIBERAL_REDDIT_PASS'),
-                     user_agent='reddit-neoliberal-bot-node',
-                     username=config('NEOLIBERAL_REDDIT_USER'))
+r = praw.Reddit(user_agent='reddit-neoliberal-bot-py',
+                client_id=os.environ['CLIENT_ID'],
+                client_secret=os.environ['CLIENT_SECRET'],
+                password=os.environ['REDDIT_PASS'],
+                username=os.environ['REDDIT_USER'])
+
+#FOR SOME REASON THIS ISN'T WORKING...
+#r = praw.Reddit(user_agent='reddit-neoliberal-bot-py',
+#                client_id=config('NEOLIBERAL_CLIENT_ID'),
+#                client_secret=config('NEOLIBERAL_CLIENT_SECRET'),
+#                password=config('NEOLIBERAL_REDDIT_PASS'),
+#                username=config('NEOLIBERAL_REDDIT_USER'))
 
 #READ COMMENTS FROM DISCUSSION THREAD
 def handle_post(submission, post_date):
     spark = start_spark()
-    submission.comments.replace_more(limit=None)
-    comment_list = gen_schema_1()
+    comment_list = submission.comments.replace_more(limit=None)
+    schema_1 = gen_schema_1()
     schema_2 = gen_schema_2()
     rdd = spark.sparkContext.parallelize(comment_list)
     comment_data_frame_1 = spark.createDataFrame(rdd,schema_1)
@@ -72,9 +77,9 @@ def start_spark():
         .getOrCreate()
 
 #CREATE POST WITH IMAGE
-def create_post(file_path):
-    #submission = r.subreddit('neoliberal').submit_image(str(post_date)+' DT Analysis', file_path)
-    #submission.reply(POST_DESCRIPTION)
+def create_post(file_path, post_date):
+    submission = r.subreddit('neoliberal').submit_image(str(post_date)+' DT Analysis', file_path)
+    submission.reply(POST_DESCRIPTION)
     return
 
 #GRAPH NUMBER OF COMMENTS OVER TIME
