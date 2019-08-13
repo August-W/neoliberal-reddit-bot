@@ -1,0 +1,1 @@
+ & C:/Users/aybru/AppData/Local/Programs/Python/Python37-32/python.exe c:/Users/aybru/PROJECTS_GIT-DIRECTORIES/neoliberal-reddit-bot/app.py
